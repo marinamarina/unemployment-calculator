@@ -1,0 +1,62 @@
+#newsspec_4950.desktop {
+/* Layout styles */
+	width: 624px;
+    margin: 0 0 1.231em 0;
+       
+/* Choices */
+    .choices__gender {
+        background-color: $bbc-light-grey;
+        width: 207px;
+        height: 72px;
+        margin-right: 1px;
+        float: left;
+    }
+    .choices__location {
+        @extend .choices__gender;
+        width: 208px;
+    }
+    .choices__occupation {
+        @extend .choices__gender;
+        width: 207px;
+        margin: 0;
+    } 
+    .choices__occupation-list {
+        height: 11.9em;
+        position: absolute;
+        width: 508px;
+        li {
+            float: left;
+            margin: 0;
+            width: 265px;
+            &.narrow {
+                width: 208px;
+            }
+            .selected {
+                background-color: #dedede;
+            }
+        }
+    }
+
+/* Results */
+    .results {
+      width: 624px;
+      @include transparentResultsBg;
+    }		
+    .results__default {
+        height: 54px;
+        @include transparentResultsBg;
+        padding: 40px 0 0 8px;
+    }
+    .results__all {
+       height: 197px;
+    }
+    .results__all-item {
+        visibility: hidden;
+        &.visible {
+            visibility: visible;
+        }
+    }
+    .results__all-your-choice {
+        height: 2em;
+    }
+}

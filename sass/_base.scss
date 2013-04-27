@@ -1,0 +1,316 @@
+/* wrappers blqjs-nojs-mobile */
+
+/* NOJS-JS */
+#newsspec_4950_no-js {
+    display: block;
+}
+#newsspec_4950 {
+    display: none;
+}
+.blq-js #newsspec_4950_no-js {
+    display: none;
+}
+.blq-js #newsspec_4950 {
+    display: block;
+}
+
+/*Mobile JS*/
+.blq-js #newsspec_4950.mobile {
+    display: none;
+}
+
+/* Styles both desktop and mobile */
+#newsspec_4950 {
+
+    /* Introduction */
+    .introduction {
+        width: 100%;
+        overflow: hidden;
+    }
+    .introduction__title {
+        font: bold 1.8462em/1em Arial;
+    }
+    .introduction__text--bold {
+        font-weight: bold;
+    }
+
+    /* Choices */
+    .choices__gender {
+        padding-bottom: .9em;
+    }
+    .choices__gender-header {
+        @include choiceHeader;
+    }
+    .choices__gender-select {
+        @include reset;
+        overflow: hidden;
+    }
+    .choices__gender-select-item {
+        float: left;
+        height: 2.5em;
+        padding: 1em 0 0 1.1em;
+        width: 43%;
+        @include genderBg;
+        input {
+            @include floatAndWidth;
+            clear: none;
+
+        }
+        label {
+            @extend input;
+            padding-left: 0.4em;
+        }
+        &.selected {
+            @include genderBg(78px -52px);
+        }
+
+    }
+    .choices__gender-select-item--female { 
+        @include genderBg(78px -104px);
+        &.selected {
+           @include genderBg(78px -156px); 
+        } 
+    }
+    .choices__location-header {
+        @include choiceHeader;
+    }
+    .choices__location {
+        @extend .choices__gender;
+    }
+    .choices__location-dropdown {
+        @include myStyledSelect; 
+            span {
+                @include selectSpan;
+        } 
+    }
+    .choices__location-list {
+        @include list;
+        position: absolute;
+        color: darken(#999, 50%);
+        font-weight: bold;
+        height: 11.9em;
+        width: 13.8em;
+        li {
+            margin: 0;
+            padding: 0.615em 0 0 0.615em;
+            font-size: 1.077em;
+            &:hover {
+                cursor: pointer; 
+                background-color: #39f;
+                color: #fff;
+            }
+        }
+    }
+    .choices__location-list.display {
+        display: block;
+    }
+    .choices__occupation {
+        margin: 0;
+        @extend .choices__location;
+    }
+    .choices__occupation-header {
+        @include choiceHeader;
+    }
+    .choices__occupation-dropdown {
+        @include myStyledSelect; 
+            span {
+                @include selectSpan;
+        }
+    }
+    .choices__occupation-list {
+        @include list;
+        li {
+            cursor: pointer;    
+            padding: 0.616em 0 0 0.616em;
+            &:hover {
+             background-color: #39f;
+             color: #FFFFFF;
+            }
+            .head {
+                @include reset;
+                color: darken(#999, 50%);
+                font-weight: bold;
+                font-size: 1.077em;
+            }
+            .subhead {
+                @include reset;
+                color: #999999;
+                font-size: 0.8462em;
+                font-style: italic;
+                padding-left: 0.923em;
+            }
+            &:hover .subhead {
+                color: #FFFFFF;
+            }
+            .selected {
+                background-color: #DEDEDE;
+            }
+        }
+    }
+    .choices__occupation-list.display {
+        display: block;
+    }
+
+   /* Results */
+    .results__default {
+        display: block;
+    }
+    .results__uk-value {
+        display: inline;
+        color: $bbc-orange;
+        font-weight: bold;
+        font-size: 2.462em;
+    }
+    .results__all {
+        display: none;
+        overflow: hidden;
+    }
+    .results__all-header {
+        @include reset;
+        font-size: 1.231em;
+        padding: 0.6em 0 0 0.6em;
+        color: $bbc-grey;
+    }
+ 
+   .results__all-item {
+        float: left;
+        height: auto;
+        padding: 0.615em 0 0 1em;
+        width: 31.2%;
+    }
+    .results__all-your-choice {
+        font: bold 1.154em/1em Arial;
+        margin-bottom: 0.308em;
+        text-align: left;
+    }
+    .results__all-absolute {
+        float: left;
+        width: 10.5em; 
+        .percentage {
+            color: $your-choice-gender;
+            font: bold 3.692em/1em Arial;
+        }
+        .number {
+            font-size: 1.231em;
+            margin-bottom: 1.462em;
+        }
+        p {
+            @include reset;
+            display: block;
+            span {
+                padding-left: 0.615em;
+            }
+        }
+        .no-data {
+            font-size: 2.8em;
+            line-height: 1.32em;                                
+        }
+    }
+    .results__all-relative {
+        float: left;
+        padding-top: 0.8em;
+        width: 4em;
+        height: auto;
+        h4 {
+            color: $bbc-grey;
+            font: bold 1em/1em Arial;
+            padding: 0.9em 1em 0.9em 1.25em;
+        }
+        .down {
+         @include relativeResultBg(3px 27px);
+        }
+        .up {
+            @include relativeResultBg(3px -90px); 
+        }
+        .zero {
+            @include relativeResultBg(0 -176px); 
+        }
+        p {
+            @include reset;
+            text-align: center;
+            font: normal 0.8462em/1em Arial;
+        }
+    }
+    .results__all-history {
+        clear: both;
+        p {
+            @include reset;
+            span {
+                padding-left: 1em;
+            }
+        }
+    }  
+                            
+    .results__all-location {
+        .percentage {
+            color: $your-choice-location!important;
+        }
+    }
+    .results__all-occupation {
+        .percentage {
+            color: $your-choice-occupation!important;
+        }
+    }
+
+    /* Bubble chart */
+    #bubble-chart--loc, 
+    #bubble-chart--occ {
+        position: relative;
+    }
+    .bubble-chart {
+        height: 80px;
+        margin: 1.231em auto;
+        text-align: left;
+        width: 624px;
+        //float: left;
+    }
+    .extreme-label {
+        position: absolute;
+        top: 0;
+        font-size: 0.9em;
+        z-index: 2;
+    }
+    .tip-key, .choice-key {
+        position: absolute;
+        width: auto;
+        height: 25px;
+        top: 0;
+    }
+    .tip-key {
+       z-index: 11;
+    } 
+    .choice-key {
+        z-index: 10;
+    } 
+    .tip-content, .choice-content {
+        background-color: #EDEDED;
+        border: 1px solid gray;
+        height: 15px;
+        font-size: .9em;
+        padding: 2px 4px 0;
+        position: relative;
+        width: auto;
+        z-index: 9;
+    }
+    .tip-beak, .choice-beak {
+        background: url("/news/special/2013/newsspec_4950/img/down.png") no-repeat scroll 0 0 transparent;
+        height: 20px;
+        position: absolute;
+        top: 43%;
+        width: 27px;
+        z-index: 7;
+    }
+    .tip-value, .choice-value {
+        left: 95px;
+        position: absolute;
+        font-size: 16px;
+        bottom: 0;
+    }
+    .choice-name {
+        z-index: 5;
+    }
+    .choice-value {
+        display: none;
+    }
+
+}

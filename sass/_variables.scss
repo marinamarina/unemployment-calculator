@@ -1,0 +1,121 @@
+/* Variables */
+$bbc-grey: #505050;
+$border : #DADADA;
+$bbc-light-grey: #EAEAEA;
+$bbc-orange: #D1700E;
+$your-choice-gender: #522751;
+$your-choice-location: #DFA300;
+$your-choice-occupation: #385C7C;
+$project-path: "/news/special/2013/newsspec_4950";
+$gender-image-path : "#{$project-path}/img/people_icons_sprite.png";
+$relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
+
+/* General styles */
+#newsspec_4950 {
+    ul li {
+        background-image: none;
+    }
+	select:focus, 
+	option:focus, 
+	select::-moz-focus-inner, 
+	option::-moz-focus-inner {
+		outline: none;
+		border: none;
+	}
+	.visible {
+        visibility: visible;
+    }
+    .red {
+        color: red;
+    }
+	.clear {
+		clear: both;
+	}
+}
+
+/* Functions and mixins */
+@mixin reset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+@mixin floatAndWidth {
+	float: left;
+	width: auto;
+}
+
+/* Launch */
+@mixin launchButtonElement {
+	background-color: rgba(0, 0, 0, 0.7);
+	background: rgb(0, 0, 0); /* The Fallback */
+	float: left;
+	padding: 8px;
+}
+
+/* Choices mixins */
+@mixin choiceHeader {
+	color: $bbc-grey;
+    font: bold 1.385em/1em Arial;
+    margin: 0;
+    padding: 0.6em 0 0 0.6em;
+    color: $bbc-grey;
+    display: block;
+}
+@mixin myStyledSelect {
+	background: url("#{$project-path}/img/select-arrow.png") no-repeat scroll right center #FFFFFF;
+	height: 1.846em;
+	width: 13.8em;
+	margin: 1.2em 0 0 1em;
+	overflow: hidden;
+	padding: 0;
+	border: 1px solid #999;
+	&:hover {
+		cursor: pointer;
+	}
+}
+@mixin list {
+	background-color: white;
+	border: 1px solid #A6A6A6;
+	color: #000000;
+	display: none;
+	overflow-y: scroll;
+	//font-size: 1.077em;
+	margin: 0 0 0 1em;
+	z-index: 999;
+}
+@mixin selectSpan {
+	font-size: 0.9em;
+	padding: 6px 0 0 6px;
+	display: block;
+	letter-spacing: normal;
+	word-spacing: normal;
+	text-transform: none;
+	text-indent: 0;
+	text-shadow: none;
+	text-align: start;
+}
+
+/* Results */
+@mixin transparentResultsBg {
+	background-color: transparentize($bbc-light-grey, 0.5);
+}
+@mixin transparentControls ($color : '#000000') {
+	background-color: transparentize($color, 0.3)
+}
+@mixin genderBg ($position:78px 0,$repeat: no-repeat) {
+	background: {
+		image: url($gender-image-path);
+		position: $position;
+		repeat: $repeat;
+	}
+}
+@mixin relativeResultBg ($position: 0 0,$repeat: no-repeat) {
+	background: {
+		image: url($relative-result-image-path);
+		position: $position;
+		repeat: $repeat;
+	}	
+}
+
+
+

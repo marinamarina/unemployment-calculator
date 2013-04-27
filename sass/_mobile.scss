@@ -1,0 +1,195 @@
+/* Launch calculator */
+#newsspec_4950-launch { 
+	position: relative;
+	#launch-calculator {
+       color: #FFFFFF;
+       left: 0;
+       position: absolute;
+       top: 50%;
+       img {
+          @include launchButtonElement;
+          height: 34px;
+          margin: 0 1px 0 0;
+          width: 34px;
+      }
+      span {
+          @include launchButtonElement;
+          display: block;
+          line-height: 34px;
+      }
+      &:hover {
+          cursor: pointer;
+      }
+  }
+}
+
+.full-width-calculator {
+	#blq-container {
+		display: none;
+	}
+	#newsspec_4950.mobile {
+        display: block;
+    }
+}
+
+/* Layout */
+#newsspec_4950.mobile {	
+    background-color: #FFFFFF;
+    bottom: 0; 
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+
+    .close-calculator {
+        background-color: #DADADA;
+        color: #505050;
+        display: block;
+        font-size: 1.8em;
+        font-weight: normal;
+        letter-spacing: 0.03em;
+        margin: 0 0 0.08em;
+        padding: 0.48em 0.32em;
+        &:hover {
+            cursor: pointer;
+        }
+        div {
+            background: url("/news/special/2013/newsspec_4950/img/back.png") no-repeat;
+        }
+    }
+
+    /* Introduction */
+    .introduction {
+        background-color: #DADADA;
+        padding: 1.15em 0.6em;
+    }
+    .introduction__text {
+        display: none;
+    }
+    .introduction__text--bold {
+        display: block;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-top: 1em;
+    }
+
+    /* Choices */
+    .choices {
+        height: 18em;
+        padding: 0.615em 0.615em
+    }
+    .choices__gender {
+        display: block;
+        min-height: 4.538em;
+    }
+    .choices-header,
+    .choices__location-header,
+    .choices__occupation-header {
+        padding: 0 0 0.4em 0;
+    }
+    .choices__gender-select {
+        padding-left: 1em;
+    }
+    .choices__gender-select-item {
+        padding: 0;
+        min-width: 7.462em;
+        width: 40%;
+        height: auto;
+        max-height: 3.4em;
+        @include genderBg(53px 0);
+        input {
+            float: left;
+            line-height: 1.2em;
+            margin: 1.35em 0.4em 1.35em 0;
+            width: auto;
+        }
+        label {
+            float: left;
+            font-size: 1em;
+            margin: 1.23em 0 0;
+            padding: 0;
+        }
+        &.selected {
+            @include genderBg(53px -52px);
+        }
+    }
+    .choices__gender-select-item--female {
+        @include genderBg(68px -99px); 
+        &.selected {
+            @include genderBg(68px -151px);
+        } 
+    }
+    .choices__location {
+        min-width: 14.5em;
+        width: 36%;
+    }
+    .choices__location-dropdown {
+        margin-top: 0;
+    }
+    .choices__occupation {
+        @extend .choices__location;
+    }
+    .choices__occupation-list {
+        height: 114px;
+        width: 266px;
+        position: relative;
+        overflow-y: scroll;
+    }
+
+    /* Results */
+    .results {
+        padding: 1em 1em;
+        border-bottom: 0.1em solid $border;
+    }
+    .results__default {
+       padding: 0 1em;
+    }
+    .results__uk-value {
+       padding: 0 1em;
+    }
+   .results__all {
+        overflow: hidden;
+        display: none;
+    }
+    .results__all-header {
+        font: bold 1.2em/1em Helvetica;
+        padding: 0;
+    }
+    .results__all-item {
+        clear: both;
+        width: 90%;
+        border-bottom: 0.1em solid $border;
+        padding-bottom: 1em;
+        display: none;
+        &.visible {
+            display: block;
+        }
+    }
+    .results__all-absolute {
+        float: left;
+        min-width: 10.5em;
+        width: 12%;
+        height: 5em;
+    }
+    .results__all-relative {
+        float: left;
+        height: auto;
+        min-width: 4.5em;
+        padding-top: 0.4em;
+        width: 5%;
+    }
+    .results__all-history {
+        clear: none;
+        float: left;
+        min-width: 11em;
+        padding-top: 1.34em;
+        width: 30%;
+    }
+    /* Bubble chart */
+    .bubble-chart {
+        //width: 90%;
+    }
+    #bubble-chart--loc  {
+        float: left;
+    }
+}
