@@ -21,21 +21,24 @@ define(['newspec_4950/bootstrap',
         var calculatorModel = new CalculatorModel();
         var inputElements = new InputElementsView('.choices');
         var resultsView = new ResultsView(calculatorModel, inputElements);
-        
-        calculatorModel.init();
-
         var bubbleChartLocView = new BubbleChartView('bubble-chart--loc', 'location', calculatorModel, screenWidth);
+        //var linechartView = new LineChartView(calculatorModel);
+
+        calculatorModel.init();
+        
+        resultsView.init();
+        bubbleChartLocView.init();
+        //linechartView.init();
+
+        
         //var bubbleChartOccView = new BubbleChartView('bubble-chart--occ', 'occupation', calculatorModel, screenWidth);
 
-        bubbleChartLocView.init();
+        
         //bubbleChartOccView.init();
         
         //console.log(bubbleChartLocView)
         //console.log(bubbleChartOccView)
-
-        var linechartView = new LineChartView();
-
-        linechartView.init(calculatorModel);
+        
         
         /* If mobile, init the launch view */
         if (!isDesktop) {
@@ -71,14 +74,14 @@ define(['newspec_4950/bootstrap',
 
         /* Choosing Location */
         inputElements.locationDropdown[0].onclick = function() {
-            resultsView.handleDropdown(resultsView.locationList);
+            resultsView.handleDropdown(inputElements.locationList);
         };
 
         inputElements.locationListElements.each(function () {
             this.onclick = function() {
                 var location = $(this).text();
                 resultsView.displayLocationPanel();
-                resultsView.handleDropdown(resultsView.locationList, location);
+                resultsView.handleDropdown(inputElements.locationList, location);
                 
                 calculatorModel.location = location;
                 calculatorModel.updateModel("", location, "");
@@ -87,7 +90,7 @@ define(['newspec_4950/bootstrap',
 
         /* Choosing Occupation */
         inputElements.occupationDropdown[0].onclick = function() {
-            resultsView.handleDropdown(resultsView.occupationList);
+            resultsView.handleDropdown(inputElements.occupationList);
         };
 
         inputElements.occupationListElements.each(function () {
@@ -96,7 +99,7 @@ define(['newspec_4950/bootstrap',
                     occupationText = $($(this)[0].getElementsByClassName('head')[0]).text();
 
                 resultsView.displayOccupationPanel();
-                resultsView.handleDropdown(resultsView.occupationList, occupationText);
+                resultsView.handleDropdown(inputElements.occupationList, occupationText);
                 calculatorModel.occupationText = occupationText;
                 calculatorModel.updateModel("", "", occupation);
             }

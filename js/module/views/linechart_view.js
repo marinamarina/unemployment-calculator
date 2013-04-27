@@ -6,14 +6,13 @@ define(['newspec_4950/bootstrap', 'highcharts'],
     
     LineChartView = function (model) {
         this.model = model;
-        
     }
 
     LineChartView.prototype.colors = {
         location: '#DFA300',
         occupation: '#385C7C'
     }
-    LineChartView.prototype.init = function(results, price, title) {
+    LineChartView.prototype.init = function() {
             var data1 = {
                 name: 'Men in London',
                 data: [3.90,4.13,4.30,4.46,3.50,3.60,3.70,3.80,3.90,4.13,4.30,4.46,3.80,3.90,4.13,4.30,4.46,3.50,3.60,3.70,3.80,3.90,4.13,4.30,4.46,3.50,3.60,3.70,3.80,3.90,4.13,4.30,4.46,3.50,3.60,3.70,3.80,3.90,4.13,4.30,4.46,3.50,3.60,3.70,3.80,3.90,4.13,4.3,3.90,4.13,4.3,3.90,4.13,4.3,3.90,4.13,4.3,3.90,4.13,4.3,6.3]

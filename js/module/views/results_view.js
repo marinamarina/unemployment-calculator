@@ -8,37 +8,16 @@ define(['newspec_4950/bootstrap'],
 		function (news) {
 	
 	var $ = news.$, 
-		pubsub = news.pubsub;
+		pubsub = news.pubsub,
+		ResultsView;
 
-	var ResultsView = function (model, inputElements) {
-	    var that = this;
+	ResultsView = function (model, inputElements) {
 
 	    this.model = model;
-
-	    this.genderInput = inputElements.genderInput; //choice1 - gender
-	    this.locationDropdown = inputElements.locationDropdown; //choice2 - location
-	    this.locationList = inputElements.locationList,
-	    this.locationListElements = inputElements.locationListElements;
-	    this.occupationDropdown = inputElements.occupationDropdown; //choice3 - occupation
-		this.occupationList = inputElements.occupationList,
-	    this.occupationListElements = inputElements.occupationListElements;
-
 
 	    this.default = $('#newsspec_4950 .results__default'); //panel with default values
 	    this.allResults = $('#newsspec_4950 .results__all'); //panel with results
 	    
-	    pubsub.addListener('gender-object-updated', function() {
-	    	that.updateGenderPanel();
-	    	that.updateLocationPanel();
-	    	that.updateOccupationPanel();
-	    });
-	    pubsub.addListener('location-object-updated', function (chosenLocation) {
-			that.updateLocationPanel();
-			that.updateOccupationPanel();
-		});
-		pubsub.addListener('occupation-object-updated', function () {
-			that.updateOccupationPanel();
-		});
 	}
 
 	ResultsView.prototype.insertDefaultValues = function(dataObject) {
@@ -138,6 +117,26 @@ define(['newspec_4950/bootstrap'],
 	}
 	ResultsView.prototype.updateOccupationPanel = function() {
 		this.updatePanel('.results__all-occupation', this.model.occupationPanelData);	
+	}
+	ResultsView.prototype.addListeners = function() {
+
+		var that = this;
+		
+		pubsub.addListener('gender-object-updated', function() {
+	    	that.updateGenderPanel();
+	    	that.updateLocationPanel();
+	    	that.updateOccupationPanel();
+	    });
+	    pubsub.addListener('location-object-updated', function (chosenLocation) {
+			that.updateLocationPanel();
+			that.updateOccupationPanel();
+		});
+		pubsub.addListener('occupation-object-updated', function () {
+			that.updateOccupationPanel();
+		});
+	}
+	ResultsView.prototype.init = function () {
+		this.addListeners();
 	}
 
 
