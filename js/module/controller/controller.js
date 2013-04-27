@@ -16,7 +16,7 @@ define(['newspec_4950/bootstrap',
 
         //checking the width of the screen
         var screenWidth = document.body.offsetWidth; //window width
-
+//new comment
         
         //initialising model and views
         var calculatorModel = new CalculatorModel();
