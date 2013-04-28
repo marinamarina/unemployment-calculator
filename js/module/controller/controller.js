@@ -22,24 +22,17 @@ define(['newspec_4950/bootstrap',
         var inputElements = new InputElementsView('.choices');
         var resultsView = new ResultsView(calculatorModel, inputElements);
         var bubbleChartLocView = new BubbleChartView('bubble-chart--loc', 'location', calculatorModel, screenWidth);
-        //var linechartView = new LineChartView(calculatorModel);
+        var bubbleChartOccView = new BubbleChartView('bubble-chart--occ', 'occupation', calculatorModel, screenWidth);
+        var linechartView = new LineChartView(calculatorModel);
 
         calculatorModel.init();
         
         resultsView.init();
         bubbleChartLocView.init();
-        //linechartView.init();
+        bubbleChartOccView.init();
+        linechartView.init();
 
-        
-        //var bubbleChartOccView = new BubbleChartView('bubble-chart--occ', 'occupation', calculatorModel, screenWidth);
-
-        
-        //bubbleChartOccView.init();
-        
-        //console.log(bubbleChartLocView)
-        //console.log(bubbleChartOccView)
-        
-        
+               
         /* If mobile, init the launch view */
         if (!isDesktop) {
             var launchView = new LaunchView('#newsspec_4950'); 
@@ -58,6 +51,7 @@ define(['newspec_4950/bootstrap',
         /* Setting Default Values */
         resultsView.insertDefaultValues(calculatorModel.defaultPanelData);
 
+        var c = 0;
         /* Choosing Gender */
         inputElements.genderInput.each(function () {
             this.onchange = function() {
@@ -68,7 +62,14 @@ define(['newspec_4950/bootstrap',
 
                 resultsView.displayGenderPanel();
                 calculatorModel.updateModel(gender, "", "");
-
+                //if (c === 0) {
+                 linechartView.addLine(calculatorModel.genderPanelData.monthlyData, calculatorModel.genderPanelData.choice);
+                 //console.log("one")
+                 //} else { 
+                   // linechartView.update(calculatorModel.genderPanelData.monthlyData, calculatorModel.genderPanelData.choice);
+                    //console.log("two")
+                 //}
+                c++;
             }
         });
 
@@ -102,6 +103,8 @@ define(['newspec_4950/bootstrap',
                 resultsView.handleDropdown(inputElements.occupationList, occupationText);
                 calculatorModel.occupationText = occupationText;
                 calculatorModel.updateModel("", "", occupation);
+
+                console.log(bubbleChartOccView.yourChoice, bubbleChartLocView.yourChoice)
             }
         });
 

@@ -41,15 +41,13 @@ define(['newspec_4950/bootstrap', 'raphael'],
 
     /* Axis constructor, draw axis */
     BubbleChartView.prototype.renderAxis = function (data) {
-       
-        //console.log(data)
        var  sortedData = data,
             axisX,
-       		axisMin = parseInt(sortedData[0].rate),
-       		axisMax = parseInt(sortedData[sortedData.length-1].rate) + 2,
-       		minLabel,
-       		maxLabel,
-       		axisUpTo = 585;
+       		  axisMin = parseInt(sortedData[0].rate) - 3,
+       		  axisMax = parseInt(sortedData[sortedData.length-1].rate) + 2,
+       		  minLabel,
+       		  maxLabel,
+       		  axisUpTo = 585;
 
        		if (this.screenWidth < 624) {
        			axisUpTo = this.screenWidth - 34;
@@ -109,7 +107,7 @@ define(['newspec_4950/bootstrap', 'raphael'],
 	        tip_content = $("#" + this.rootEl + " .tip-content"),
 	        tip_key = $("#" + this.rootEl + " .tip-key"),
 	        tip_value = $("#" + this.rootEl + " .tip-value"),
-            choice_value = $("#" + this.rootEl + " .choice-value");     
+          choice_value = $("#" + this.rootEl + " .choice-value");     
 
 	    bubble.onclick = function () {
 	       tip_content.text(key);
@@ -140,7 +138,7 @@ define(['newspec_4950/bootstrap', 'raphael'],
     		axisMin = parseInt(sortedData[0].rate),
     		axisMax = max + 2,
     		axisLength = 551;
-            this.yourChoice = yourChoice || this.yourChoice;
+        
 
     	if (this.screenWidth < 624) {
        		axisLength = this.screenWidth * 551 / 624;
@@ -155,22 +153,25 @@ define(['newspec_4950/bootstrap', 'raphael'],
         for (i = 0; i < sortedData.length; i++) {
 
 
-            var x = sortedData[i].rate * axisLength / axisMax-axisMin,
+            var x = sortedData[i].rate * axisLength / axisMax - axisMin,
+                descr = sortedData[i].descr,
                 key = sortedData[i].key,
                 value = sortedData[i].rate;
 
+                console.log(sortedData[i])
+
             if (i === 0 || i === sortedData.length-1) { //top and bottoms
-                this.renderSingleBubble(x, 0.75, key, value);
+                this.renderSingleBubble(x, 0.75, descr || key, value);
                 (i === 0) ? this.addExtremeLabels(x - 50, "Bottom") : this.addExtremeLabels(x + 10, "Top");
 
             } else {
-            	this.renderSingleBubble(x, 0.35, key, value); //the rest of the bubble crowd
+            	this.renderSingleBubble(x, 0.35, descr || key, value); //the rest of the bubble crowd
             }
 
            if (key === this.yourChoice) { //your choice, %username%
                 
-                this.renderSingleBubble(x, 1, key, value);
-                this.addChoiceLabel (x - 13, key, value); 
+                this.renderSingleBubble(x, 1, descr || key, value);
+                this.addChoiceLabel (x - 13, descr || key, value); 
 
             }
         }
@@ -196,19 +197,15 @@ define(['newspec_4950/bootstrap', 'raphael'],
     }
     BubbleChartView.prototype.update = function (yourChoice) {
         
-        console.log(this.model.bubbleChartLocData);
-        //console.log()
-        if (this.chartType === "location") {
-            this.renderAxis(this.model.bubbleChartLocData);
-            this.renderBubbles(yourChoice, this.model.bubbleChartLocData);
-        } else {
-            this.renderAxis(this.model.bubbleChartOccData);
-            this.renderBubbles(yourChoice, this.model.bubbleChartOccData); 
-        }
+        var data;
 
+        data = (this.chartType==="location") ? this.model.locationBubbleChartData : this.model.occupationBubbleChartData; 
+
+        this.renderAxis(data);
+        this.renderBubbles(yourChoice, data);
     }
 
-	BubbleChartView.prototype.addPubsub = function() {
+	BubbleChartView.prototype.addListeners = function() {
 		var that = this;
 
 
@@ -221,26 +218,34 @@ define(['newspec_4950/bootstrap', 'raphael'],
         });
 		pubsub.on('location-object-updated', function(yourChoice) {
         	
+            if (that.chartType === "location") {
+                that.yourChoice = yourChoice;
+            }
             
-            //if (that.chartType === "location") {
-                that.update(yourChoice);
-            //}
-           // console.log(that.chosenLocation)
+            if (that.yourChoice !== "") {
+                that.update(that.yourChoice);
+            }
+
         });
         pubsub.on('occupation-object-updated', function(yourChoice) {
             
             if (that.chartType === "occupation") {
-                that.update(yourChoice);
+                that.yourChoice = yourChoice;
+                that.update(that.yourChoice);
             }
-            //that.update(yourChoice);
+            
+            //if (that.chartType === "occupation") {
+              //  that.update(yourChoice);
+            //}
+            
            // console.log(that.chosenLocation)
         });
 	}
 	BubbleChartView.prototype.init = function() {  
 
-        (this.chartType === "location") ? this.renderAxis(this.model.bubbleChartLocData) : this.renderAxis(this.model.bubbleChartOccData)
-        //console.log(this.model.bubbleChartLocData, this.model.bubbleChartOccData)
-        this.addPubsub();
+        (this.chartType === "location") ? this.renderAxis(this.model.locationBubbleChartData) : this.renderAxis(this.model.occupationBubbleChartData)
+        //console.log(this.model.bubbleChartLocData, this.model.occupationBubbleChartData)
+        this.addListeners();
 
     }
 

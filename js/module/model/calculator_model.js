@@ -22,12 +22,13 @@ define(['newspec_4950/bootstrap',
 	    this.queryPattern = /([\d]{4})([M,F]{1})?([\d-]+)?([A-Za-z\s]+)?$/;
 
 	    this.defaultPanelData = {"ukClaims" : data[this.currentYear].claims,
-								 "ukRate" : data[this.currentYear].rate};
+								 "ukRate" : data[this.currentYear].rate,
+								 "monthlyData" : data[this.currentYear].monthlyData};
 	    this.genderPanelData = {};
         this.locationPanelData = {};
 	    this.occupationPanelData = {};
-	    this.bubbleChartLocData = [];
-	    this.bubbleChartOccData = [];
+	    this.locationBubbleChartData = [];
+	    this.occupationBubbleChartData = [];
      
 	}
 
@@ -71,16 +72,18 @@ define(['newspec_4950/bootstrap',
 			occupationMatch = match[3] || "",
 			locationMatch = match[4] || "";
 		
-		this.updateGenderPanelDataObject(yearMatch, genderMatch);
-		this.updateLocationPanelDataObject(yearMatch, genderMatch, locationMatch);
-	    this.updateOccupationPanelDataObject(yearMatch, genderMatch, locationMatch, occupationMatch);
+		this.updateGenderPanelData(yearMatch, genderMatch);
+		this.updateLocationPanelData(yearMatch, genderMatch, locationMatch);
+	    this.updateOccupationPanelData(yearMatch, genderMatch, locationMatch, occupationMatch);
 
 		if (gender!="") {
-			this.updateLocationBubbleChartDataObject(gender);
+			this.updateLocationBubbleChartData();
+			this.updateOccupationBubbleChartData();
 			pubsub.emit("gender-object-updated");
 
-			//this.updateOccupationBubbleChartDataObject(gender, "");
+			//this.updateOccupationBubbleChartData(gender, "");
 		} else if (location!="") {
+			this.updateOccupationBubbleChartData();
 			pubsub.emit("location-object-updated", [this.location]);
 		} else if (occupation!= "") {
             pubsub.emit("occupation-object-updated", [this.occupation]);
@@ -88,16 +91,23 @@ define(['newspec_4950/bootstrap',
 		
 	}
 
-	CalculatorModel.prototype.updateGenderPanelDataObject = function(yearMatch, genderMatch) {
+	CalculatorModel.prototype.updateGenderPanelData = function(yearMatch, genderMatch) {
+		var obj = this.data[yearMatch + genderMatch];
 
-		this.genderPanelData.choice = this.getGender();
-		this.genderPanelData.rateCurrentYear = this.getFormattedRate(this.data[yearMatch + genderMatch].rate);
-		this.genderPanelData.rateLastYear = this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch].rate);
-		this.genderPanelData.rateRelative = this.getRelativeRate(this.genderPanelData.rateCurrentYear,this.genderPanelData.rateLastYear);
-		this.genderPanelData.rateFiveYearsAgo = this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch].rate);
-		this.genderPanelData.claimsCurrentYear = this.getClaims(this.data[yearMatch + genderMatch].claims);
+		
+		this.genderPanelData =
+			{"choice" : this.getGender(),
+			"rateCurrentYear" : this.getFormattedRate(obj.rate),
+			"rateLastYear" : this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch].rate),
+			"rateFiveYearsAgo" : this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch].rate),
+			"rateRelative" : this.getRelativeRate(this.getFormattedRate(obj.rate),this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch].rate)),
+			"claimsCurrentYear" : this.getClaims(obj.claims),
+			"monthlyData" : obj.monthlyData
+			}
+			//console.log(this.getRelativeRate(this.genderPanelData.rateCurrentYear,this.genderPanelData.rateLastYear))
+			
 	}
-	CalculatorModel.prototype.updateLocationPanelDataObject = function(yearMatch, genderMatch, locationMatch) {
+	CalculatorModel.prototype.updateLocationPanelData = function(yearMatch, genderMatch, locationMatch) {
 		 
         this.locationPanelData.choice = this.location;
         this.locationPanelData.rateCurrentYear = this.getFormattedRate(this.data[yearMatch + genderMatch + locationMatch].rate);
@@ -106,7 +116,7 @@ define(['newspec_4950/bootstrap',
         this.locationPanelData.rateFiveYearsAgo = this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch + locationMatch].rate);
         this.locationPanelData.claimsCurrentYear = this.getClaims(this.data[yearMatch + genderMatch + locationMatch].claims);
 	}
-	CalculatorModel.prototype.updateOccupationPanelDataObject = function(yearMatch, genderMatch, locationMatch, occupationMatch) {
+	CalculatorModel.prototype.updateOccupationPanelData = function(yearMatch, genderMatch, locationMatch, occupationMatch) {
 	
 		this.occupationPanelData.choice = this.occupationText;
 		this.occupationPanelData.rateCurrentYear = this.getFormattedRate(this.data[yearMatch + genderMatch + occupationMatch + locationMatch].rate);
@@ -115,50 +125,37 @@ define(['newspec_4950/bootstrap',
 		this.occupationPanelData.rateFiveYearsAgo = this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch + occupationMatch + locationMatch].rate);
 		this.occupationPanelData.claimsCurrentYear = this.getClaims(this.data[yearMatch + genderMatch + occupationMatch + locationMatch].claims);
 	}
-	CalculatorModel.prototype.updateLocationBubbleChartDataObject = function(gender) {
+	CalculatorModel.prototype.updateLocationBubbleChartData = function() {
 		var locations = ['North East', 'North West', 'West Midlands', 'London', 'East', 'South East', 'South West', 'Wales', 'Scotland', 'Northern Ireland', 'East Midlands', 'Yorkshire and The Humber'];
 		var b = [];
-		var gender = gender || "";
 
 		for (var i = 0; i < locations.length; i ++) {
-
-			for (var key in data) {
-   				var obj = data[this.currentYear + gender + locations[i]];	
-   				var a = {};
-   				a.key = locations[i];
-   				for (var prop in obj) {
-      				a.rate = this.getRate (obj['rate'] );	
-      				break;
-   				}
+			var a = {};
+				a.key = locations [i]
+				a.rate =  this.getRate (data[this.currentYear + this.gender + locations[i]].rate);
+   				b.push(a);
    			}
-   			b.push(a);
-		}
+   			
 		
-		this.bubbleChartLocData = this.sortData(b);
+		
+		this.locationBubbleChartData = this.sortData(b);
 	}
-	CalculatorModel.prototype.updateOccupationBubbleChartDataObject = function(gender, location) {
-		var occupations = {'12': 'dvornik', '11' : 'koshka' , '23': 'developa'};  //, '34', '24', '21'];
+	CalculatorModel.prototype.updateOccupationBubbleChartData = function() {
+
+		//TODO HANDLE NO DATA!!!
+		var occupations = [['12', 'Managers, agriculture & services'],['11','Managers'],['23','Teachers & lecturers'],['34','Media & sport'], ['24','Business\/public service profs'],['21','Science & tech profs'],['31','Science\/technology assoc profs'],['71','Sales'],['35','Business\/public service assoc profs'],['41','Admin occupations'],['42','Secretarial'],['33','Emergency services'],['51','Skilled agricultural trades'],['82','Transport'],['92','Elementary admin/services'],['52','Skilled trades'],['54','Textile, printing, other skilled trades'],['53','Skilled building trades'],['61','Caring service occupations'],['62','Leisure'],['32','Healthcare associate profs'],['91','Elementary trades'],['72','Customer service, call centres'],['81','Plant work']];  //, '34', '24', '21'];
 		var b = [];
-		var gender = gender || "";
-		var location = location || "";
 
-		for (var m in occupations) {
-
-			for (var key in data) {
-
-   				var obj = data[this.currentYear + gender + location + m];	
-   				var a = {};
-   				a.key = m;
-   				for (var prop in obj) {
-      				a.rate = this.getRate (obj['rate'] );	
-
-      				break;
-   				}
-   			}
-   			b.push(a);
+		for (var i = 0; i < occupations.length; i++) {
+			var a = {};
+			a.descr = occupations[i][1];
+			a.key = occupations[i][0];
+			a.rate = this.getRate (data[this.currentYear + this.gender + occupations[i][0] + this.location].rate);
+			
+   			b.push(a)
 		}
 
-		this.bubbleChartOccData = this.sortData(b);
+		this.occupationBubbleChartData = this.sortData(b);
 	}
 
 	/* Sort array by rate */
@@ -178,6 +175,7 @@ define(['newspec_4950/bootstrap',
 
         for (i = 0; i < data.length; i++) {
             var a = {};
+            a.descr = data[i].descr;
             a.key = data[i].key;
             a.rate = data[i].rate;
 
@@ -196,8 +194,8 @@ define(['newspec_4950/bootstrap',
 	/* Init */
 	CalculatorModel.prototype.init = function() {
 
-		this.updateLocationBubbleChartDataObject();
-		this.updateOccupationBubbleChartDataObject();
+		this.updateLocationBubbleChartData();
+		this.updateOccupationBubbleChartData();
 	}
 
 
