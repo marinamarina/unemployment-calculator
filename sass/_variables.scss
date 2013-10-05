@@ -3,11 +3,16 @@ $bbc-grey: #505050;
 $border : #DADADA;
 $bbc-light-grey: #EAEAEA;
 $bbc-orange: #D1700E;
+$bbc-bright-orange: #FF9900;
 $your-choice-gender: #522751;
 $your-choice-location: #DFA300;
 $your-choice-occupation: #385C7C;
+$your-choice-gender-lite: #B4A5B5;
+$your-choice-location-lite: #DBC283;
+$your-choice-occupation-lite: #8BAAC1;
 $project-path: "/news/special/2013/newsspec_4950";
-$gender-image-path : "#{$project-path}/img/people_icons_sprite.png";
+$gender-image-path: "#{$project-path}/img/people_icons_sprite.png";
+$gender-image-path-mobile: "#{$project-path}/img/people_icons_sprite_mobile.png";
 $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 
 /* General styles */
@@ -49,7 +54,7 @@ $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 	background-color: rgba(0, 0, 0, 0.7);
 	background: rgb(0, 0, 0); /* The Fallback */
 	float: left;
-	padding: 8px;
+	padding: 0.616em;
 }
 
 /* Choices mixins */
@@ -57,7 +62,7 @@ $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 	color: $bbc-grey;
     font: bold 1.385em/1em Arial;
     margin: 0;
-    padding: 0.6em 0 0 0.6em;
+    padding: 0.6em 0 0 0.8em;
     color: $bbc-grey;
     display: block;
 }
@@ -79,7 +84,9 @@ $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 	color: #000000;
 	display: none;
 	overflow-y: scroll;
-	//font-size: 1.077em;
+	overflow-x: hidden;
+	font-size: 1.077em;
+	font-weight: bold;
 	margin: 0 0 0 1em;
 	z-index: 999;
 }
@@ -97,14 +104,14 @@ $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 
 /* Results */
 @mixin transparentResultsBg {
-	background-color: transparentize($bbc-light-grey, 0.5);
+	//background-color: transparentize($bbc-light-grey, 0.5);
 }
 @mixin transparentControls ($color : '#000000') {
 	background-color: transparentize($color, 0.3)
 }
-@mixin genderBg ($position:78px 0,$repeat: no-repeat) {
+@mixin genderBg ($image, $position:68px 0,$repeat: no-repeat) {
 	background: {
-		image: url($gender-image-path);
+		image: url($image);
 		position: $position;
 		repeat: $repeat;
 	}
@@ -116,6 +123,21 @@ $relative-result-image-path: "#{$project-path}/img/relative_result_arrows.png";
 		repeat: $repeat;
 	}	
 }
+
+@mixin legenditemBg {
+	background: {
+        image: url("#{$project-path}/img/line-chart_legend.png");
+        position: 0 0;
+        repeat: no-repeat;
+    }
+}
+@mixin chartTitle {
+	color: #505050;
+    font-size: 1.0769em;
+    font-weight: bold;
+    margin: 1.3846em 0 0.616em;
+}
+	
 
 
 

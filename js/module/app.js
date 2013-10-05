@@ -1,10 +1,13 @@
-// This is an application entry point 
-define(['module/controller/controller'],
-	function(Controller) {
+/*
+ * Application entry point
+ */
 
-		function init(isDesktop) {
-			Controller.init(isDesktop);
+define(['newsspec_4950/module/controller/controller'],
+	function (Controller) {
+
+		function init(isMobile) {
+			Controller.init(isMobile);
 		}
-	return {init: init};	
-
-})
+		return {init: init};	
+    }
+);

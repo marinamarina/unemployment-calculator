@@ -1,26 +1,24 @@
 /* wrappers blqjs-nojs-mobile */
 
 /* NOJS-JS */
-#newsspec_4950_no-js {
-    display: block;
-}
+
 #newsspec_4950 {
-    display: none;
-}
-.blq-js #newsspec_4950_no-js {
-    display: none;
-}
-.blq-js #newsspec_4950 {
-    display: block;
+    .newsspec-4950--no-js {
+        display: block;
+    }
+    .newsspec_4950--js {
+        display: none;
+    }
 }
 
-/*Mobile JS*/
+//Mobile JS
 .blq-js #newsspec_4950.mobile {
     display: none;
-}
+} 
 
 /* Styles both desktop and mobile */
 #newsspec_4950 {
+    font-size: 13px;
 
     /* Introduction */
     .introduction {
@@ -30,7 +28,8 @@
     .introduction__title {
         font: bold 1.8462em/1em Arial;
     }
-    .introduction__text--bold {
+    .default-claims, .default-percentage {
+        color: $bbc-orange;
         font-weight: bold;
     }
 
@@ -49,28 +48,18 @@
         float: left;
         height: 2.5em;
         padding: 1em 0 0 1.1em;
-        width: 43%;
-        @include genderBg;
+        width: 39%;
         input {
             @include floatAndWidth;
             clear: none;
-
         }
         label {
             @extend input;
             padding-left: 0.4em;
         }
-        &.selected {
-            @include genderBg(78px -52px);
-        }
 
     }
-    .choices__gender-select-item--female { 
-        @include genderBg(78px -104px);
-        &.selected {
-           @include genderBg(78px -156px); 
-        } 
-    }
+    
     .choices__location-header {
         @include choiceHeader;
     }
@@ -87,7 +76,6 @@
         @include list;
         position: absolute;
         color: darken(#999, 50%);
-        font-weight: bold;
         height: 11.9em;
         width: 13.8em;
         li {
@@ -97,7 +85,7 @@
             &:hover {
                 cursor: pointer; 
                 background-color: #39f;
-                color: #fff;
+                color: #FFFFFF;
             }
         }
     }
@@ -146,6 +134,7 @@
                 background-color: #DEDEDE;
             }
         }
+        
     }
     .choices__occupation-list.display {
         display: block;
@@ -154,6 +143,10 @@
    /* Results */
     .results__default {
         display: block;
+        div {
+            font-size: 1.0769em;
+            font-weight: normal;
+        }
     }
     .results__uk-value {
         display: inline;
@@ -166,29 +159,45 @@
         overflow: hidden;
     }
     .results__all-header {
-        @include reset;
+        font-weight: normal;
         font-size: 1.231em;
-        padding: 0.6em 0 0 0.6em;
-        color: $bbc-grey;
+        margin: 0.616em 0;
     }
  
    .results__all-item {
         float: left;
         height: auto;
-        padding: 0.615em 0 0 1em;
-        width: 31.2%;
+        padding: 0;
+        width: 33.3%;
+        
+        //If there is no data 
+        &.no-data {
+            .percentage {
+                font-size: 2.8em;
+                line-height: 1.32em;                                
+            }
+            .results__all-relative {
+                visibility: hidden;
+            }
+        }
     }
     .results__all-your-choice {
         font: bold 1.154em/1em Arial;
-        margin-bottom: 0.308em;
+        line-height: 1.2em;
+        margin: 0;
+        //margin-bottom: 2.17em;
         text-align: left;
     }
     .results__all-absolute {
         float: left;
-        width: 10.5em; 
+
         .percentage {
             color: $your-choice-gender;
             font: bold 3.692em/1em Arial;
+            text-align: center;
+            &.desaturated {
+                color :  $your-choice-gender-lite;
+            }
         }
         .number {
             font-size: 1.231em;
@@ -201,20 +210,15 @@
                 padding-left: 0.615em;
             }
         }
-        .no-data {
-            font-size: 2.8em;
-            line-height: 1.32em;                                
-        }
     }
     .results__all-relative {
         float: left;
         padding-top: 0.8em;
-        width: 4em;
         height: auto;
         h4 {
             color: $bbc-grey;
             font: bold 1em/1em Arial;
-            padding: 0.9em 1em 0.9em 1.25em;
+            padding: 1em 1.3em;
         }
         .down {
          @include relativeResultBg(3px 27px);
@@ -227,8 +231,9 @@
         }
         p {
             @include reset;
+            font: 1em/1em Arial;
+            padding: 1em 0 0 0.7em;
             text-align: center;
-            font: normal 0.8462em/1em Arial;
         }
     }
     .results__all-history {
@@ -241,76 +246,33 @@
         }
     }  
                             
-    .results__all-location {
+    .results__all-item.results__all-location {
         .percentage {
-            color: $your-choice-location!important;
+            color: $your-choice-location;
+            &.desaturated {
+                color : $your-choice-location-lite;
+            }
         }
     }
-    .results__all-occupation {
+    .results__all-item.results__all-occupation {
         .percentage {
-            color: $your-choice-occupation!important;
+            color: $your-choice-occupation;
+            &.desaturated {
+                color :  $your-choice-occupation-lite;
+            }
         }
+
     }
 
-    /* Bubble chart */
-    #bubble-chart--loc, 
-    #bubble-chart--occ {
-        position: relative;
-    }
-    .bubble-chart {
-        height: 80px;
-        margin: 1.231em auto;
-        text-align: left;
-        width: 624px;
-        //float: left;
-    }
-    .extreme-label {
-        position: absolute;
-        top: 0;
-        font-size: 0.9em;
-        z-index: 2;
-    }
-    .tip-key, .choice-key {
-        position: absolute;
-        width: auto;
-        height: 25px;
-        top: 0;
-    }
-    .tip-key {
-       z-index: 11;
-    } 
-    .choice-key {
-        z-index: 10;
-    } 
-    .tip-content, .choice-content {
-        background-color: #EDEDED;
-        border: 1px solid gray;
-        height: 15px;
-        font-size: .9em;
-        padding: 2px 4px 0;
-        position: relative;
-        width: auto;
-        z-index: 9;
-    }
-    .tip-beak, .choice-beak {
-        background: url("/news/special/2013/newsspec_4950/img/down.png") no-repeat scroll 0 0 transparent;
-        height: 20px;
-        position: absolute;
-        top: 43%;
-        width: 27px;
-        z-index: 7;
-    }
-    .tip-value, .choice-value {
-        left: 95px;
-        position: absolute;
-        font-size: 16px;
-        bottom: 0;
-    }
-    .choice-name {
-        z-index: 5;
-    }
-    .choice-value {
+    /* Bubble and Line charts */
+    .bubble-charts {
         display: none;
     }
+    .line-chart {
+        display: none;
+    }
+
+
+    
 
 }

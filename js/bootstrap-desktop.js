@@ -1,6 +1,6 @@
 define(
 ['jquery-1',
- 'newsspec_4950/js/vendor/event_emitter',
+ 'vendor/eventEmitter',
  'istats-1'],
 function (jquery, EventEmitter, istats) {
     return {

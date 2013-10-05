@@ -1,203 +1,299 @@
 //model does not know about controller and views, it has only access to data
 //model holds default data, every time there is a change, model notify its subscribers (views)  
-define(['newspec_4950/bootstrap',
-		'newsspec_4950/data/unemployment_data'
+define(['newsspec_4950/bootstrap',
+		'newsspec_4950/data/app-data-june2013',
+		'newsspec_4950/data/occupations',
+		'newsspec_4950/data/locations'
 	], 
-	function (news, data) {
+	function (news, data, occupations, locations) {
 
 		var pubsub = news.pubsub,
-			CalculatorModel = function () {
+			CalculatorModel;
 
-		this.currentYear = '2012'; //query_string_1
-		this.data = data; //passing the data in
+		CalculatorModel = function () {
 
-		this.gender = ''; //query_string_2
-		this.location = ''; //query_string_3
-		this.occupation = ''; //query_string_4
+			this.data = data.data;
+			this.occupations = occupations;
+			this.currentYear = '' + data.currentYear; //query_string_1
+			this.currentMonth = data.currentMonth;
 
-	    this.occupationText = '';
-	    this.ukClaims = data[this.currentYear].claims;
-	    this.ukRate = data[this.currentYear].rate;
-	    
-	    this.queryPattern = /([\d]{4})([M,F]{1})?([\d-]+)?([A-Za-z\s]+)?$/;
+			this.gender = ''; //query_string_2
+			this.location = ''; //query_string_3
+			this.occupation = ''; //query_string_4
 
-	    this.defaultPanelData = {"ukClaims" : data[this.currentYear].claims,
-								 "ukRate" : data[this.currentYear].rate,
-								 "monthlyData" : data[this.currentYear].monthlyData};
-	    this.genderPanelData = {};
-        this.locationPanelData = {};
-	    this.occupationPanelData = {};
-	    this.locationBubbleChartData = [];
-	    this.occupationBubbleChartData = [];
-     
-	}
+		    this.occupationText = '';
+		    
+		    this.queryPattern = /([\d]{4})([M,F]{1})?([\d-]+)?([A-Za-z&\s]+)?$/;
+		    this.defaultPanelData = {'currentYear' : this.currentYear,
+		    						 'currentMonth' : this.currentMonth,
+		    						 'ukClaims' : (this.data[this.currentYear].claims / 1000000).toFixed(1),
+									 'ukRate' : (Math.round(this.data[this.currentYear].rate * 100)) / 10,
+									 'monthlyData' : this.data[this.currentYear].monthlyData
+									};
+		    this.genderPanelData = {};
+	        this.locationPanelData = {};
+		    this.occupationPanelData = {};
+		    this.locationBubbleChartData = [];
+		    this.occupationBubbleChartData = [];
+		    this.lineChartData = [];
+		};
 
-	/* Getters */
-	CalculatorModel.prototype.getGender = function () {
-		return (this.gender === 'M') ? 'Men' : 'Women';
-	}
-	CalculatorModel.prototype.getRate = function (rate) {
-        if (parseFloat(rate) === -1) return "No data";
-		return (rate * 100).toFixed(1);
-	}
-	CalculatorModel.prototype.getFormattedRate = function (rate) {
-		if (parseFloat(rate) === -1) return "No data";
-		return (rate * 100).toFixed(1) + "%";
-	}
-	CalculatorModel.prototype.getRelativeRate = function(rateNew, rateOld) {
-		if(rateNew === -1 || rateOld === -1) return false;
+		/* 
+		 * Basic Getters 
+		 */
+
+		CalculatorModel.prototype.getGender = function () {
+			return (this.gender === 'M') ? 'Men' : 'Women';
+		};
+
+//		CalculatorModel.prototype.getGenderForCharts = function () {
+//			return (this.gender === 'M') ? 'male' : 'female';
+//		};
 		
-		var relativeRate = parseFloat(rateNew.substr(0, rateNew.length-1)) - parseFloat(rateOld.substr(0, rateOld.length-1));
-
-        relativeRate = (rateNew === rateOld) ? relativeRate.toFixed(0) : relativeRate.toFixed(1);
-        if (isNaN(relativeRate)) return "";
-
-		return parseFloat(relativeRate);
-	}
-	CalculatorModel.prototype.getClaims = function (claims) {
-		return this.numberWithCommas(claims.toFixed(0))+ " claims";
-	}
-
-	/* Updating the model */
-	CalculatorModel.prototype.updateModel = function(gender, location, occupation) {
-		
-		(gender === "") ? this.gender : this.gender = gender;
-		(location === "") ? this.location : this.location = location;
-		(occupation === "") ? this.occupation : this.occupation = occupation;
-
-		var query = this.toString(),
-			match = query.match(this.queryPattern),
-			yearMatch = parseInt(match[1]),
-			genderMatch = match[2] || "",
-			occupationMatch = match[3] || "",
-			locationMatch = match[4] || "";
-		
-		this.updateGenderPanelData(yearMatch, genderMatch);
-		this.updateLocationPanelData(yearMatch, genderMatch, locationMatch);
-	    this.updateOccupationPanelData(yearMatch, genderMatch, locationMatch, occupationMatch);
-
-		if (gender!="") {
-			this.updateLocationBubbleChartData();
-			this.updateOccupationBubbleChartData();
-			pubsub.emit("gender-object-updated");
-
-			//this.updateOccupationBubbleChartData(gender, "");
-		} else if (location!="") {
-			this.updateOccupationBubbleChartData();
-			pubsub.emit("location-object-updated", [this.location]);
-		} else if (occupation!= "") {
-            pubsub.emit("occupation-object-updated", [this.occupation]);
-        }
-		
-	}
-
-	CalculatorModel.prototype.updateGenderPanelData = function(yearMatch, genderMatch) {
-		var obj = this.data[yearMatch + genderMatch];
-
-		
-		this.genderPanelData =
-			{"choice" : this.getGender(),
-			"rateCurrentYear" : this.getFormattedRate(obj.rate),
-			"rateLastYear" : this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch].rate),
-			"rateFiveYearsAgo" : this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch].rate),
-			"rateRelative" : this.getRelativeRate(this.getFormattedRate(obj.rate),this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch].rate)),
-			"claimsCurrentYear" : this.getClaims(obj.claims),
-			"monthlyData" : obj.monthlyData
-			}
-			//console.log(this.getRelativeRate(this.genderPanelData.rateCurrentYear,this.genderPanelData.rateLastYear))
-			
-	}
-	CalculatorModel.prototype.updateLocationPanelData = function(yearMatch, genderMatch, locationMatch) {
-		 
-        this.locationPanelData.choice = this.location;
-        this.locationPanelData.rateCurrentYear = this.getFormattedRate(this.data[yearMatch + genderMatch + locationMatch].rate);
-        this.locationPanelData.rateLastYear = this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch + locationMatch].rate);
-        this.locationPanelData.rateRelative = this.getRelativeRate(this.locationPanelData.rateCurrentYear, this.locationPanelData.rateLastYear);
-        this.locationPanelData.rateFiveYearsAgo = this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch + locationMatch].rate);
-        this.locationPanelData.claimsCurrentYear = this.getClaims(this.data[yearMatch + genderMatch + locationMatch].claims);
-	}
-	CalculatorModel.prototype.updateOccupationPanelData = function(yearMatch, genderMatch, locationMatch, occupationMatch) {
-	
-		this.occupationPanelData.choice = this.occupationText;
-		this.occupationPanelData.rateCurrentYear = this.getFormattedRate(this.data[yearMatch + genderMatch + occupationMatch + locationMatch].rate);
-		this.occupationPanelData.rateLastYear = this.getFormattedRate(this.data[""+(yearMatch-1) + genderMatch + occupationMatch + locationMatch].rate);
-		this.occupationPanelData.rateRelative = this.getRelativeRate(this.occupationPanelData.rateCurrentYear,this.occupationPanelData.rateLastYear);
-		this.occupationPanelData.rateFiveYearsAgo = this.getFormattedRate(this.data[""+(yearMatch-5) + genderMatch + occupationMatch + locationMatch].rate);
-		this.occupationPanelData.claimsCurrentYear = this.getClaims(this.data[yearMatch + genderMatch + occupationMatch + locationMatch].claims);
-	}
-	CalculatorModel.prototype.updateLocationBubbleChartData = function() {
-		var locations = ['North East', 'North West', 'West Midlands', 'London', 'East', 'South East', 'South West', 'Wales', 'Scotland', 'Northern Ireland', 'East Midlands', 'Yorkshire and The Humber'];
-		var b = [];
-
-		for (var i = 0; i < locations.length; i ++) {
-			var a = {};
-				a.key = locations [i]
-				a.rate =  this.getRate (data[this.currentYear + this.gender + locations[i]].rate);
-   				b.push(a);
-   			}
-   			
-		
-		
-		this.locationBubbleChartData = this.sortData(b);
-	}
-	CalculatorModel.prototype.updateOccupationBubbleChartData = function() {
-
-		//TODO HANDLE NO DATA!!!
-		var occupations = [['12', 'Managers, agriculture & services'],['11','Managers'],['23','Teachers & lecturers'],['34','Media & sport'], ['24','Business\/public service profs'],['21','Science & tech profs'],['31','Science\/technology assoc profs'],['71','Sales'],['35','Business\/public service assoc profs'],['41','Admin occupations'],['42','Secretarial'],['33','Emergency services'],['51','Skilled agricultural trades'],['82','Transport'],['92','Elementary admin/services'],['52','Skilled trades'],['54','Textile, printing, other skilled trades'],['53','Skilled building trades'],['61','Caring service occupations'],['62','Leisure'],['32','Healthcare associate profs'],['91','Elementary trades'],['72','Customer service, call centres'],['81','Plant work']];  //, '34', '24', '21'];
-		var b = [];
-
-		for (var i = 0; i < occupations.length; i++) {
-			var a = {};
-			a.descr = occupations[i][1];
-			a.key = occupations[i][0];
-			a.rate = this.getRate (data[this.currentYear + this.gender + occupations[i][0] + this.location].rate);
-			
-   			b.push(a)
+		CalculatorModel.prototype.getGenderForCharts = function () {
+//			alternatively return lowercase in and then for getGender make use of this.capitaliseFirstLetter(str)
+			var gender = this.getGender();
+			return gender.toLowerCase();
 		}
 
-		this.occupationBubbleChartData = this.sortData(b);
-	}
+		CalculatorModel.prototype.getRate = function (rate) {
+	        if (parseFloat(rate) === -1) return 'No data';
+			return parseFloat( (rate * 100).toFixed(1) );
 
-	/* Sort array by rate */
-    CalculatorModel.prototype.sort = function(a, b) {
-        var c = 'rate';
-        return (a[c] < b[c]) ? 1 : (a[c] > b[c]) ? -1 : 0;
-    }
+		};
 
-    /* Return sorted data */
-    CalculatorModel.prototype.sortData = function(data) {
-        var i, 
-        	sortedData = [];
+//		CalculatorModel.prototype.getFormattedRate = function (rate) {
+//			if (parseFloat(rate) === -1) return 'No data';
+//			return (rate * 100).toFixed(1) + '%';
+//		};
 
-        data.sort(function(a, b) {
-            return a.rate - b.rate
-        });
+		CalculatorModel.prototype.getFormattedRate = function (rate) {
+			var rate = this.getRage(rate);
+			return (rate === 'No data') ? rate: rate + '%';
+		};
 
-        for (i = 0; i < data.length; i++) {
-            var a = {};
-            a.descr = data[i].descr;
-            a.key = data[i].key;
-            a.rate = data[i].rate;
+		CalculatorModel.prototype.getRelativeRate = function (rateNew, rateOld) {
+			if(rateNew === -1 || rateOld === -1) return false;
+			
+			var relativeRate = rateNew - rateOld;
 
-            sortedData.push(a);
-        }
-        return sortedData;
-	}
-	/* Other utility functions */
-	CalculatorModel.prototype.numberWithCommas = function(x) {
-		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	}
-	CalculatorModel.prototype.toString = function() {
-		return this.currentYear + this.gender + this.occupation + this.location; 
-	}
+	        relativeRate = isNaN(relativeRate) ? '' : (rateNew === rateOld) ? Math.round(relativeRate) : Math.round(relativeRate * 10) / 10;
 
-	/* Init */
-	CalculatorModel.prototype.init = function() {
+			return relativeRate;
+		};
 
-		this.updateLocationBubbleChartData();
-		this.updateOccupationBubbleChartData();
-	}
+		CalculatorModel.prototype.getClaims = function (claims) {
+			return this.numberWithCommas(claims.toFixed(0)) + ' claims';
+		};
 
+		CalculatorModel.prototype.getOccupationForCharts = function (code) {
+			return (this.occupations[code].forCharts);
+		};
+
+		CalculatorModel.prototype.getOccupationForDropdown = function (code) {
+			return this.occupations[code].forDropdown;
+		};
+
+		CalculatorModel.prototype.convertMonthToNumber = function () {
+			var monthsArr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+				count;
+
+			for (var i = 0; i < monthsArr.length; i ++)
+				if(monthsArr[i] === this.currentMonth) {
+					count = i + 1;
+					break;
+				}
+			 // monthsArr.indexOf(this.currentMonth) + 1;
+			return count;
+		};
+
+		CalculatorModel.prototype.toString = function () {
+			return this.currentYear + this.gender + this.occupation + this.location; 
+		};
+
+		/* 
+		 * Utility Functions
+		 */
+
+		 /* Basic array sorting function */
+		CalculatorModel.prototype.simpleSort = function (data) {
+            return data.sort(function(a, b) { return a > b ? 1 : -1});
+        };
+
+        /* Sorting helper to sort objects by one property */
+	   	CalculatorModel.prototype.sortByProperty = function (a, b, property) {
+	        return a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+	    };
+
+	    /* Sorts array of objects for the  label position */
+	    CalculatorModel.prototype.sortDataForLabelsPosition = function (array) {
+	    	var that = this;
+
+	    	array.sort(function (a, b, property) {
+                return that.sortByProperty(a, b, 'bubblesPosition');
+            });
+            return array;
+	    };
+
+	    CalculatorModel.prototype.sortDataForBubbleChart = function (data) {
+	        var i,
+	        	sortedData = []
+	        	that = this;
+
+	        data.sort(function(a, b, property) {
+	            return that.sortByProperty(a, b, 'rate');
+	        });
+
+	        for (i = 0; i < data.length; i++) {
+	            var a = {};
+	            a.descr = data[i].descr;
+	            a.key = data[i].key;
+	            a.rate = data[i].rate;
+	            sortedData.push(a);
+	        }
+	        
+	        return sortedData;
+		};
+
+		CalculatorModel.prototype.capitaliseFirstLetter = function (string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        };
+
+		CalculatorModel.prototype.numberWithCommas = function(x) {
+			return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		};
+
+		/* 
+		 * Updating the model 
+		 */
+		CalculatorModel.prototype.updateModel = function(gender, location, occupation) {
+			//when conditional is true there is no assignment happening
+			// would this be what you would have wanted this.gender = (gender === '') ? this.gender : gender; OR simply if (gender !== '') this.gender = gender
+			this.gender = (gender === '') ? this.gender : gender;
+			(location === '') ? this.location : this.location = location;
+			(occupation === '') ? this.occupation : this.occupation = occupation;
+//			could you not have used the class variables directly here? 
+			var query = this.toString(),
+				match = query.match(this.queryPattern),
+				yearMatch = parseInt(match[1]),
+				genderMatch = match[2] || '',
+				occupationMatch = match[3] || '',
+				locationMatch = match[4] || ''; 
+			
+			this.updateGenderPanelData(yearMatch, genderMatch);
+			this.updateLocationPanelData(yearMatch, genderMatch, locationMatch);
+		    this.updateOccupationPanelData(yearMatch, genderMatch, locationMatch, occupationMatch);
+
+			if (gender != '') {
+				this.updateLocationBubbleChartData();
+				this.updateOccupationBubbleChartData ();
+				pubsub.emitEvent('gender-object-updated');
+
+			} else if (location !== '') {
+				this.updateOccupationBubbleChartData();
+				pubsub.emitEvent('location-object-updated', [this.location]);
+			} else if (occupation !== '') {
+				this.updateOccupationBubbleChartData();
+	             pubsub.emitEvent('occupation-object-updated', [this.occupation]);
+	        }
+			
+		};
+
+		/* 
+		 * Updating three results panels data
+		 */
+		CalculatorModel.prototype.updateGenderPanelData = function(yearMatch, genderMatch) {
+			
+			var obj = this.data[yearMatch + genderMatch];
+
+			this.genderPanelData =
+				{'choice' : this.getGender(),
+				'rateCurrentYear' : this.getFormattedRate(obj.rate),
+				'rateLastYear' : this.getFormattedRate(this.data[''+(yearMatch-1) + genderMatch].rate),
+				'rateRelative' : this.getRelativeRate(this.getRate(obj.rate),this.getRate(this.data['' + (yearMatch-1) + genderMatch].rate)),
+				'claimsCurrentYear' : this.getClaims(obj.claims),
+				'monthlyData' : obj.monthlyData
+				}
+		};
+
+		CalculatorModel.prototype.updateLocationPanelData = function (yearMatch, genderMatch, locationMatch) {
+	        
+	        var obj = this.data[yearMatch + genderMatch + locationMatch];
+
+	        this.locationPanelData = 
+			    {'choice' : this.location,
+			     'rateCurrentYear' : this.getFormattedRate(obj.rate),
+			     'rateLastYear' : this.getFormattedRate(this.data[''+(yearMatch-1) + genderMatch + locationMatch].rate),
+			     'rateRelative' : this.getRelativeRate(this.getRate(obj.rate),this.getRate(this.data[''+(yearMatch-1) + genderMatch + locationMatch].rate)),
+			     'claimsCurrentYear' : this.getClaims(obj.claims),
+				 'monthlyData' : (obj.monthlyData[obj.monthlyData.length-1] ===-1) ? [] : obj.monthlyData
+			}
+		};
+
+		CalculatorModel.prototype.updateOccupationPanelData = function (yearMatch, genderMatch, locationMatch, occupationMatch) {
+		
+			var obj = this.data[yearMatch + genderMatch + occupationMatch + locationMatch];
+			
+			this.occupationPanelData = 
+				{'choice' : this.occupationText,
+				'rateCurrentYear' : this.getFormattedRate(obj.rate),
+				'rateLastYear ' : this.getFormattedRate(this.data[''+(yearMatch-1) + genderMatch + occupationMatch + locationMatch].rate),
+				'rateRelative' : this.getRelativeRate(this.getRate(obj.rate),this.getRate(this.data['' + (yearMatch-1) + genderMatch + occupationMatch + locationMatch].rate)),
+				'claimsCurrentYear' : this.getClaims(obj.claims),
+				'monthlyData' : (obj.monthlyData[obj.monthlyData.length-1]===-1) ? [] : obj.monthlyData
+				}
+
+		};
+
+		/* 
+		 * Updating bubble chart data objects
+		 */
+
+		CalculatorModel.prototype.updateLocationBubbleChartData = function() {
+			
+			var b = [];
+
+			for (var i = 0; i < locations.list.length; i ++) {
+				var a = {}, 
+					rate = this.getRate (this.data[this.currentYear + this.gender + locations.list[i]].rate);
+				if (rate === 'No data') {
+					continue;
+				} else {
+					a.key = locations.list[i]
+					a.rate =  rate;
+	   				b.push(a);
+	   			}
+	   		}	
+
+			this.locationBubbleChartData = this.sortDataForBubbleChart(b);
+		};
+
+		CalculatorModel.prototype.updateOccupationBubbleChartData = function () {
+//			this may be ok within a method scope but its best practise to name variables meaningfully  (as opposed to b or a) for readability 
+			var b = [];
+			for ( var occ in occupations ) {
+				var a = {},
+					rate = this.getRate (this.data[this.currentYear + this.gender + occ + this.location].rate);
+
+				if (rate === 'No data') {
+					continue;
+				} else {
+					a.descr = occupations[occ].forDropdown;
+					a.key = occ;
+					a.rate = rate;
+					b.push(a);
+				}
+			}
+			this.occupationBubbleChartData = this.sortDataForBubbleChart(b);
+		};
+
+		/* 
+		 * Init
+		 */
+		CalculatorModel.prototype.init = function() {
+			this.updateLocationBubbleChartData();
+			this.updateOccupationBubbleChartData();
+		};
 
 	return CalculatorModel;    
-})
+});
